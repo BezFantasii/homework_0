@@ -1,8 +1,12 @@
+'use strict';
+
 /**
  * Функция, создающая новый объект без ключей,
  * значения которых равны null, undefined или пустой строке.
+ * Вложенные объекты обрабатываются рекурсивно по тем же правилам,
+ * объекты, ставшие пустыми после сжатия, удаляются.
  *
- * @param {Object} obj - исходный объект для сжатия
+ * @param {Object} [obj={}] - исходный объект для сжатия
  *
  * @example
  * // returns { name: "Андрей", country: "Россия" }
@@ -16,33 +20,37 @@
  *
  * @example
  * // returns {}
- * compressObject({ a: null, b: undefined, c: "" });
+ * compressObject({ a: { c: undefined, d: null }, b: undefined, c: "" });
  *
  * @returns {Object} новый объект, содержащий только ключи с ненулевыми значениями
  */
-
-function compressObject(obj = {}) {
-  if (obj === null || typeof obj !== "object" || Array.isArray(obj)) {
-    return {};
+const compressObject = (obj) => {
+  if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
+    return null;
   }
+
   const result = {};
+
   for (const [key, value] of Object.entries(obj)) {
-    const processedValue =
-      value !== null && typeof value === "object" && !Array.isArray(value)
-        ? compressObject(value)
-        : value;
-    const isEmpty =
-      processedValue === null ||
-      processedValue === undefined ||
-      processedValue === "" ||
-      (typeof processedValue === "object" &&
-        !Array.isArray(processedValue) &&
-        Object.keys(processedValue).length === 0);
-    if (!isEmpty) {
-      result[key] = processedValue;
+    let newValue;
+
+    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      newValue = compressObject(value);
+    } else {
+      newValue = value;
+    }
+
+    const isEmpty = newValue === null || newValue === undefined || newValue === '';
+    const isEmptyObject =
+      newValue !== null &&
+      typeof newValue === 'object' &&
+      !Array.isArray(newValue) &&
+      Object.keys(newValue).length === 0;
+
+    if (!isEmpty && !isEmptyObject) {
+      result[key] = newValue;
     }
   }
 
-
   return result;
-}
+};
