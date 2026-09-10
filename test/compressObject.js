@@ -46,4 +46,36 @@ QUnit.module("Тестируем функцию compressObject", function () {
 
         assert.deepEqual(result, {}, "Объект с вложенностью обрабатывается по тем же правилам");
     });
+    QUnit.test("Возвращает null для не-объектов", function (assert) {
+        assert.strictEqual(compressObject(undefined), null, "undefined возвращает null");
+        assert.strictEqual(compressObject("строка"), null, "строка возвращает null");
+        assert.strictEqual(compressObject(42), null, "число возвращает null");
+        assert.strictEqual(compressObject([1, 2, 3]), null, "массив возвращает null");
+    });
+    QUnit.test("Не удаляет 0, false, NaN и массивы", function (assert) {
+        const result = compressObject({
+            a: 0,
+            b: false,
+            c: NaN,
+            d: [1, 2],
+            e: null,
+        });
+
+        assert.strictEqual(result.a, 0, "0 остаётся");
+        assert.strictEqual(result.b, false, "false остаётся");
+        assert.ok(Number.isNaN(result.c), "NaN остаётся");
+        assert.deepEqual(result.d, [1, 2], "массив остаётся");
+        assert.strictEqual(result.e, undefined, "null удаляется");
+    });
+    QUnit.test("Сохраняет непустые вложенные объекты", function (assert) {
+        const result = compressObject({
+            user: {
+                name: "Анна",
+                age: null,
+            },
+            city: "",
+        });
+
+        assert.deepEqual(result, { user: { name: "Анна" } }, "Вложенный объект очищается и сохраняется");
+    });
 });
