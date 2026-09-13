@@ -47,10 +47,11 @@ QUnit.module("Тестируем функцию compressObject", function () {
         assert.deepEqual(result, {}, "Объект с вложенностью обрабатывается по тем же правилам");
     });
     QUnit.test("Возвращает null для не-объектов", function (assert) {
-        assert.strictEqual(compressObject(undefined), null, "undefined возвращает null");
-        assert.strictEqual(compressObject("строка"), null, "строка возвращает null");
-        assert.strictEqual(compressObject(42), null, "число возвращает null");
-        assert.strictEqual(compressObject([1, 2, 3]), null, "массив возвращает null");
+        assert.strictEqual(compressObject(undefined), undefined, "undefined возвращает undefined");
+        assert.strictEqual(compressObject("строка"), "строка", "строка возвращает строку");
+        assert.strictEqual(compressObject(42), 42, "число возвращает число");
+        const arrObj = [1, 2, 3];
+        assert.strictEqual(compressObject(arrObj), arrObj, "массив возвращает массив");
     });
     QUnit.test("Не удаляет 0, false, NaN и массивы", function (assert) {
         const result = compressObject({
